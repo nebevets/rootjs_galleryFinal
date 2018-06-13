@@ -1,0 +1,88 @@
+/* your javascript goes here */
+
+$(document).ready(initiateApp);
+
+var pictures = [
+	'images/landscape-1.jpg',
+	'images/landscape-10.jpg',
+	'images/landscape-11.jpg',
+	'images/landscape-13.jpg',
+	'images/landscape-15.jpg',
+	'images/landscape-17.jpg',
+	'images/landscape-18.jpg',
+	'images/landscape-19.jpg',
+	'images/landscape-2.jpg',
+	'images/landscape-3.jpg',
+	'images/landscape-8.jpg',
+	'images/landscape-9.jpg',
+	'images/pexels-photo-132037.jpeg',
+	'images/pretty.jpg',
+];
+
+function initiateApp(){
+	/*advanced: add jquery sortable call here to make the gallery able to be sorted
+		//on change, rebuild the images array into the new order
+	*/
+	makeGallery(pictures);
+	addModalCloseHandler();
+}
+function makeGallery(imageArray){
+    // create a reference to a jQuery element for our gallery
+	var galleryContainer = $('#gallery');
+    
+    // clear what html is there already
+    galleryContainer.html(' '); 
+    
+    //create a loop to go through the pictures array
+    for (var i in pictures){
+        // make the url for the background-image value
+        var imageUrl = "url('./" + pictures[i] + "')"; 
+        
+        // get the filename for the figcaption
+        var sliceIndex = pictures[i].lastIndexOf('/');
+        var fileName = pictures[i].slice(++sliceIndex);
+        var figCapText = fileName;
+        
+        // create my html with jQuery methods
+        var figCapTag = $('<figcaption>').text(figCapText);
+        var figureTag = $('<figure>').addClass('imageGallery col-xs-12 col-sm-6 col-md-4').css('background-image', imageUrl);
+        
+        figureTag.append(figCapTag);
+        
+        figureTag.click(displayImage);
+        
+        galleryContainer.append(figureTag);
+    }
+}
+
+function addModalCloseHandler(){
+	//add a click handler to the img element in the image modal.  When the element is clicked, close the modal
+    $('.modal-body>img').click(hideImage);
+	//for more info, check here: https://www.w3schools.com/bootstrap/bootstrap_ref_js_modal.asp	
+}
+
+function displayImage(){
+    //grab the direct url of the image by getting rid of the other pieces you don't need
+    var arrUrlImg = this.style.backgroundImage.split('"');
+    var imgPath = arrUrlImg[1]; // this is only the path without the url("") bits
+    
+	//grab the name from the file url, ie the part without the path.  so "images/pexels-photo-132037.jpeg" would become
+		// pexels-photo-132037
+		//take a look at the lastIndexOf method
+    var firstIndex = imgPath.lastIndexOf('/'); // index *before* the one needed to get rid of './images/'
+    var lastIndex = imgPath.lastIndexOf('.'); // index to get rid of '.jpg'
+    var imgName = imgPath.slice(++firstIndex,lastIndex); // gets only the name
+    
+	//change the modal-title text to the name you found above
+    $('.modal-title').text(imgName);
+	//change the src of the image in the modal to the url of the image that was clicked on
+    $('.modal-body>img').attr('src', imgPath);
+
+	//show the modal with JS.  Check for more info here: 
+	//https://www.w3schools.com/bootstrap/bootstrap_ref_js_modal.asp
+    $("#galleryModal").modal('show')
+}
+
+function hideImage(){
+    $("#galleryModal").modal('hide')
+}
