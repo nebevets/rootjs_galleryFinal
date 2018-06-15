@@ -20,45 +20,100 @@ var pictures = [
 ];
 
 function initiateApp(){
-	/*advanced: add jquery sortable call here to make the gallery able to be sorted
-		//on change, rebuild the images array into the new order
-	*/
-	makeGallery(pictures);
+    if (localStorage.length === pictures.length){
+        var storedPicOrder = [];
+        for (var i=0; i<localStorage.length;i++){
+            storedPicOrder.push(localStorage.getItem(i));
+        }
+        makeGallery(storedPicOrder);
+    }else{
+        // if our storage is bad
+        if (localStorage){
+            localStorage.clear();
+        }
+        makeGallery(pictures);
+    }
 	addModalCloseHandler();
+    $('#gallery').sortable();
+	$('#gallery').on("sortupdate", reOrderArray);
 }
+
 function makeGallery(imageArray){
-	//use loops and jquery dom creation to make the html structure inside the #gallery section
-
-	//create a loop to go through the pictures
-		//create the elements needed for each picture, store the elements in variable
-
-		//attach a click handler to the figure you create.  call the "displayImage" function.  
-
-		//append the element to the #gallery section
-
+	var galleryContainer = $('#gallery');
+    
+    // clear what html is there already
+    galleryContainer.html(' '); 
+    
+    //create a loop to go through the imageArray
+    for (var i in imageArray){
+        // make the url for the background-image value
+        var imageUrl = "url('./" + imageArray[i] + "')"; 
+        
+        // get the filename for the figcaption
+        var sliceIndex = imageArray[i].lastIndexOf('/');
+        var fileName = imageArray[i].slice(++sliceIndex);
+        var figCapText = fileName;
+        
+        // create my html with jQuery methods
+        var figCapTag = $('<figcaption>').text(figCapText);
+        
+        var figureOptions = {
+            'class': 'imageGallery col-xs-12 col-sm-6 col-md-4',
+            css: {
+                'background-image': imageUrl   
+            },
+            on: {
+                click: displayImage
+            }
+        };
+        var figureTag = $('<figure>', figureOptions);
+        
+        figureTag.append(figCapTag);
+        galleryContainer.append(figureTag);
+    }
 }
 
 function addModalCloseHandler(){
 	//add a click handler to the img element in the image modal.  When the element is clicked, close the modal
+    $('.modal-body>img').click(hideImage);
 	//for more info, check here: https://www.w3schools.com/bootstrap/bootstrap_ref_js_modal.asp	
 }
 
 function displayImage(){
-	//find the url of the image by grabbing the background-image source, store it in a variable
-	//grab the direct url of the image by getting rid of the other pieces you don't need
-
+    //grab the direct url of the image by getting rid of the other pieces you don't need
+    var arrUrlImg = this.style.backgroundImage.split('"');
+    var imgPath = arrUrlImg[1]; // this is only the path without the url("") bits
+    
 	//grab the name from the file url, ie the part without the path.  so "images/pexels-photo-132037.jpeg" would become
 		// pexels-photo-132037
-		//take a look at the lastIndexOf method
-
+	var firstIndex = imgPath.lastIndexOf('/'); // index *before* the one needed to get rid of './images/'
+    var lastIndex = imgPath.lastIndexOf('.'); // index to get rid of '.jpg'
+    var imgName = imgPath.slice(++firstIndex,lastIndex); // gets only the name
+    
 	//change the modal-title text to the name you found above
+    $('.modal-title').text(imgName);
 	//change the src of the image in the modal to the url of the image that was clicked on
+    $('.modal-body>img').attr('src', imgPath);
 
 	//show the modal with JS.  Check for more info here: 
 	//https://www.w3schools.com/bootstrap/bootstrap_ref_js_modal.asp
+    $("#galleryModal").modal('show')
 }
 
+function hideImage(){
+    $("#galleryModal").modal('hide')
+}
 
+function reOrderArray(){
+    var results = [];
+    $('figcaption').each(function(){
+        results.push('./images/' + $(this).text());
+    });
+    storePicOrder(results);
+}
 
-
-
+function storePicOrder(newPicOrder){
+    for (var i in newPicOrder){
+        localStorage.setItem(i, newPicOrder[i]);
+    }
+}
