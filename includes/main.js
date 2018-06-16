@@ -20,17 +20,23 @@ var pictures = [
 ];
 
 function initiateApp(){
-    if (localStorage.length === pictures.length){
+    if (localStorage.length > 0){
+                debugger;
+
         var storedPicOrder = [];
-        for (var i=0; i<localStorage.length;i++){
-            storedPicOrder.push(localStorage.getItem(i));
+        var i = 0;
+        
+        while (localStorage.getItem("imageArray_" + i.toString())){
+            storedPicOrder.push(localStorage.getItem("imageArray_" + i.toString()));
+            i++;
         }
-        makeGallery(storedPicOrder);
+        
+        if (storedPicOrder.length > 0){
+            makeGallery(storedPicOrder);
+        }else{
+            makeGallery(pictures);
+        }
     }else{
-        // if our storage is bad
-        if (localStorage){
-            localStorage.clear();
-        }
         makeGallery(pictures);
     }
 	addModalCloseHandler();
@@ -113,7 +119,11 @@ function reOrderArray(){
 }
 
 function storePicOrder(newPicOrder){
-    for (var i in newPicOrder){
-        localStorage.setItem(i, newPicOrder[i]);
+    for (var i=0; i < newPicOrder.length; i++){
+        var getItemIndex = "imageArray_" + i.toString();
+        if (localStorage.getItem(getItemIndex)){
+            localStorage.removeItem(getItemIndex);
+        }
+        localStorage.setItem(getItemIndex, newPicOrder[i]);
     }
 }
