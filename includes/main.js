@@ -21,8 +21,6 @@ var pictures = [
 
 function initiateApp(){
     if (localStorage.length > 0){
-                debugger;
-
         var storedPicOrder = [];
         var i = 0;
         
